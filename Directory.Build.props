@@ -1,0 +1,18 @@
+<Project>
+  <!-- Common properties regarding language version, CA rulesets, output paths, etc. -->
+  <PropertyGroup>
+    <LangVersion>10.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <OutputPathBase Condition=" '$(OutputPathBase)' == '' ">$(MSBuildThisFileDirectory)bin\$(Configuration)\</OutputPathBase>
+    <OutputPath>$(OutputPathBase)\$(MSBuildProjectName)\</OutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <!-- Treat warnings as errors in release builds, so that all warnings
+         are fixed before pushing to CI but don't need to be immediately
+         fixed during development -->
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>
