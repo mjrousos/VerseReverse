@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Exploration.Models;
+﻿using System.Text.RegularExpressions;
+using VerseReverse.Models;
 
 namespace VerseReverse;
 

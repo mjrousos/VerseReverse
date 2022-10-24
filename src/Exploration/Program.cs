@@ -1,7 +1,5 @@
-﻿using Abot2.Crawler;
-using Abot2.Poco;
-using Exploration.Models;
-using VerseReverse;
+﻿using VerseReverse;
+using VerseReverse.Crawlers;
 
 // See https://aka.ms/new-console-template for more information
 Console.WriteLine("Initiating crawl...");

@@ -2,17 +2,17 @@
 using System.Threading.Channels;
 using Abot2.Crawler;
 using Abot2.Poco;
-using Exploration.Models;
 using HtmlAgilityPack;
+using VerseReverse.Models;
 
-namespace VerseReverse;
+namespace VerseReverse.Crawlers;
 
-public class DesiringGodMessagesCrawler
+public class DesiringGodMessagesCrawler : IVerseCrawler
 {
     private const string InitialUrl = "https://www.desiringgod.org/messages/all";
 
-    private static readonly Regex MessageListRegex = new (@"^https:\/\/www\.desiringgod\.org\/messages\/all(\?page=\d+)?$", RegexOptions.Compiled | RegexOptions.Singleline);
-    private static readonly Regex MessageRegex = new (@"^https:\/\/www\.desiringgod\.org\/messages\/[a-zA-Z0-9\-]+$", RegexOptions.Compiled | RegexOptions.Singleline);
+    private static readonly Regex MessageListRegex = new(@"^https:\/\/www\.desiringgod\.org\/messages\/all(\?page=\d+)?$", RegexOptions.Compiled | RegexOptions.Singleline);
+    private static readonly Regex MessageRegex = new(@"^https:\/\/www\.desiringgod\.org\/messages\/[a-zA-Z0-9\-]+$", RegexOptions.Compiled | RegexOptions.Singleline);
     private readonly IEnumerable<string> _urlsToSkip;
 
     public string Name => "DesiringGodMessages";

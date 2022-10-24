@@ -1,7 +1,4 @@
-﻿using VerseReverse;
-using VerseReverse.Models;
-
-namespace Exploration.Models;
+﻿namespace VerseReverse.Models;
 
 public record ArticleVerseReference(string Provider, string Url, Books Book, int Chapter, int? Verse);
 
