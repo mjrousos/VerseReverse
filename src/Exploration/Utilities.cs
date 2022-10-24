@@ -37,6 +37,16 @@ public static class Utilities
             }
         }
 
-        // Todo : Look for and return chapter reference matches
+        foreach (Match match in ChapterRegex.Matches(str))
+        {
+            var book = match.Groups["Book"].Value.ToBookName();
+
+            if (book.HasValue)
+            {
+                var chapter = int.Parse(match.Groups["Chapter"].Value);
+
+                yield return new Reference(book.Value, chapter, null, null);
+            }
+        }
     }
 }

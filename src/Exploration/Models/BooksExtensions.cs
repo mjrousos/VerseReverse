@@ -31,7 +31,7 @@ public static class BooksExtensions
         return book;
     }
 
-    public static string ToDisplayString(Books book) =>
+    public static string ToDisplayString(this Books book) =>
             book switch
             {
                 Books.FirstSamuel => "1 Samuel",

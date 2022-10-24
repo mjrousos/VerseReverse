@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Threading.Channels;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using Abot2.Crawler;
 using Abot2.Poco;
 using Exploration.Models;
@@ -16,34 +9,20 @@ namespace VerseReverse;
 
 public class DesiringGodMessagesCrawler
 {
-    private const string CrawlerName = "DesiringGodMessages";
     private const string InitialUrl = "https://www.desiringgod.org/messages/all";
 
     private static readonly Regex MessageListRegex = new (@"^https:\/\/www\.desiringgod\.org\/messages\/all(\?page=\d+)?$", RegexOptions.Compiled | RegexOptions.Singleline);
     private static readonly Regex MessageRegex = new (@"^https:\/\/www\.desiringgod\.org\/messages\/[a-zA-Z0-9\-]+$", RegexOptions.Compiled | RegexOptions.Singleline);
     private readonly IEnumerable<string> _urlsToSkip;
 
-#if CustomCrawler
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ConcurrentQueue<string> _crawlerQueue;
-
-    public DesiringGodMessagesCrawler(IHttpClientFactory httpClientFactory)
-    {
-        _httpClientFactory = httpClientFactory;
-    }
-
-    async IAsyncEnumerable<Reference> GetReferences(IEnumerable<string> urlsToSkip, CancellationToken ct)
-    {
-
-    }
-#endif // CustomCrawler
+    public string Name => "DesiringGodMessages";
 
     public DesiringGodMessagesCrawler(IEnumerable<string> urlsToSkip)
     {
         _urlsToSkip = urlsToSkip;
     }
 
-    public async IAsyncEnumerable<Reference> GetReferences(CancellationTokenSource cts)
+    public async IAsyncEnumerable<ArticleVerseReference> GetReferences(CancellationTokenSource cts)
     {
         var config = new CrawlConfiguration
         {
@@ -52,7 +31,7 @@ public class DesiringGodMessagesCrawler
             MaxPagesToCrawlPerDomain = 10_000,
         };
 
-        var references = Channel.CreateUnbounded<Reference>();
+        var references = Channel.CreateUnbounded<ArticleVerseReference>();
         var crawler = new PoliteWebCrawler(config);
         crawler.ShouldCrawlPageDecisionMaker = ShouldCrawlPage;
         crawler.PageCrawlCompleted += (sender, args) => ExtractReferences(args.CrawledPage, references.Writer);
@@ -77,7 +56,7 @@ public class DesiringGodMessagesCrawler
         await crawlTask.ConfigureAwait(false);
     }
 
-    private void ExtractReferences(CrawledPage crawledPage, ChannelWriter<Reference> referenceWriter)
+    private void ExtractReferences(CrawledPage crawledPage, ChannelWriter<ArticleVerseReference> referenceWriter)
     {
         if (!IsMessage(crawledPage.Uri))
         {
@@ -89,10 +68,46 @@ public class DesiringGodMessagesCrawler
 
         var mainElement = doc.DocumentNode.SelectSingleNode("//main");
 
-        // TODO
         foreach (var reference in mainElement.InnerHtml.GetPassages())
         {
-            Console.WriteLine($"{crawledPage.Uri}: {reference}");
+            // Write chapter references
+            if (!reference.Verse.HasValue)
+            {
+                var articleVerseReference = new ArticleVerseReference(
+                    Name,
+                    crawledPage.Uri.AbsoluteUri,
+                    reference.Book,
+                    reference.Chapter,
+                    null);
+
+                WriteArticleReference(referenceWriter, articleVerseReference);
+            }
+            else
+            {
+                var startVerse = reference.Verse.Value;
+                var endVerse = reference.EndVerse ?? startVerse;
+
+                for (var v = startVerse; v <= endVerse; v++)
+                {
+                    var articleVerseReference = new ArticleVerseReference(
+                        Name,
+                        crawledPage.Uri.AbsoluteUri,
+                        reference.Book,
+                        reference.Chapter,
+                        v);
+
+                    WriteArticleReference(referenceWriter, articleVerseReference);
+                }
+            }
+        }
+    }
+
+    private static void WriteArticleReference(ChannelWriter<ArticleVerseReference> referenceWriter, ArticleVerseReference articleVerseReference)
+    {
+        if (!referenceWriter.TryWrite(articleVerseReference))
+        {
+            // TODO : Log error
+            Console.WriteLine($"ERROR: Failed to write reference");
         }
     }
 
