@@ -13,16 +13,14 @@ public class DesiringGodMessagesCrawler : IVerseCrawler
 
     private static readonly Regex MessageListRegex = new(@"^https:\/\/www\.desiringgod\.org\/messages\/all(\?page=\d+)?$", RegexOptions.Compiled | RegexOptions.Singleline);
     private static readonly Regex MessageRegex = new(@"^https:\/\/www\.desiringgod\.org\/messages\/[a-zA-Z0-9\-]+$", RegexOptions.Compiled | RegexOptions.Singleline);
-    private readonly IEnumerable<string> _urlsToSkip;
 
     public string Name => "DesiringGodMessages";
 
-    public DesiringGodMessagesCrawler(IEnumerable<string> urlsToSkip)
+    public DesiringGodMessagesCrawler()
     {
-        _urlsToSkip = urlsToSkip;
     }
 
-    public async IAsyncEnumerable<ArticleVerseReference> GetReferences(CancellationTokenSource cts)
+    public async IAsyncEnumerable<ArticleVerseReference> GetReferences(IEnumerable<string> urlsToSkip, CancellationTokenSource cts)
     {
         var config = new CrawlConfiguration
         {
@@ -33,7 +31,7 @@ public class DesiringGodMessagesCrawler : IVerseCrawler
 
         var references = Channel.CreateUnbounded<ArticleVerseReference>();
         var crawler = new PoliteWebCrawler(config);
-        crawler.ShouldCrawlPageDecisionMaker = ShouldCrawlPage;
+        crawler.ShouldCrawlPageDecisionMaker = (page, _) => ShouldCrawlPage(page, urlsToSkip);
         crawler.PageCrawlCompleted += (sender, args) => ExtractReferences(args.CrawledPage, references.Writer);
 
         var crawlTask = crawler.CrawlAsync(new Uri(InitialUrl), cts)
@@ -111,8 +109,8 @@ public class DesiringGodMessagesCrawler : IVerseCrawler
         }
     }
 
-    private CrawlDecision ShouldCrawlPage(PageToCrawl page, CrawlContext context) =>
-        new CrawlDecision { Allow = !_urlsToSkip.Contains(page.Uri.AbsoluteUri) && (IsMessage(page.Uri) || IsMessageList(page.Uri)) };
+    private CrawlDecision ShouldCrawlPage(PageToCrawl page, IEnumerable<string> urlsToSkip) =>
+        new CrawlDecision { Allow = !urlsToSkip.Contains(page.Uri.AbsoluteUri) && (IsMessage(page.Uri) || IsMessageList(page.Uri)) };
 
     private bool IsMessageList(Uri uri) =>
         MessageListRegex.IsMatch(uri.AbsoluteUri);
