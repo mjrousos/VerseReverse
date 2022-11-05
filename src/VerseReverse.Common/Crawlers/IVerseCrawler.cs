@@ -6,6 +6,6 @@ namespace VerseReverse.Crawlers
     {
         string Name { get; }
 
-        IAsyncEnumerable<ArticleVerseReference> GetReferences(IEnumerable<string> urlsToSkip, CancellationTokenSource cts);
+        IAsyncEnumerable<ArticleReference> GetReferences(IEnumerable<string> urlsToSkip, CancellationTokenSource cts);
     }
 }

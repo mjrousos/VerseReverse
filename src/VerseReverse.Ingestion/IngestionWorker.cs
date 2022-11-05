@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using VerseReverse.Crawlers;
+using VerseReverse.Data;
 using VerseReverse.Ingestion.Models;
 
 namespace VerseReverse.Ingestion;
@@ -7,12 +8,14 @@ namespace VerseReverse.Ingestion;
 public class IngestionWorker : BackgroundService
 {
     private readonly IEnumerable<IVerseCrawler> _crawlers;
+    private readonly IDataRepository _dataRepository;
     private readonly ILogger<IngestionWorker> _logger;
     private readonly IngestionOptions _options;
 
-    public IngestionWorker(IOptions<IngestionOptions> options, IEnumerable<IVerseCrawler> crawlers, ILogger<IngestionWorker> logger)
+    public IngestionWorker(IOptions<IngestionOptions> options, IEnumerable<IVerseCrawler> crawlers, IDataRepository dataRepository, ILogger<IngestionWorker> logger)
     {
         _crawlers = crawlers ?? throw new ArgumentNullException(nameof(crawlers));
+        _dataRepository = dataRepository;
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
@@ -42,7 +45,7 @@ public class IngestionWorker : BackgroundService
         // TODO : Get verses and write to the database (in batches?)
         await foreach (var reference in crawler.GetReferences(urlsToSkip, new CancellationTokenSource()))
         {
-            Console.WriteLine($"[{reference.Provider}] {reference.Url}: {reference.Book.ToDisplayString()} {reference.Chapter}{(reference.Verse.HasValue ? $":{reference.Verse}" : string.Empty)}");
+            Console.WriteLine($"[{reference.Provider}] {reference.Url}: {reference.Reference}");
         }
 
         _logger.LogInformation("Ingestion finished with crawler {CrawlerName}", crawler.Name);

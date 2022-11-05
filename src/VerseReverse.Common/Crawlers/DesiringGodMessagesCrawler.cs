@@ -20,7 +20,7 @@ public class DesiringGodMessagesCrawler : IVerseCrawler
     {
     }
 
-    public async IAsyncEnumerable<ArticleVerseReference> GetReferences(IEnumerable<string> urlsToSkip, CancellationTokenSource cts)
+    public async IAsyncEnumerable<ArticleReference> GetReferences(IEnumerable<string> urlsToSkip, CancellationTokenSource cts)
     {
         var config = new CrawlConfiguration
         {
@@ -29,7 +29,7 @@ public class DesiringGodMessagesCrawler : IVerseCrawler
             MaxPagesToCrawlPerDomain = 10_000,
         };
 
-        var references = Channel.CreateUnbounded<ArticleVerseReference>();
+        var references = Channel.CreateUnbounded<ArticleReference>();
         var crawler = new PoliteWebCrawler(config);
         crawler.ShouldCrawlPageDecisionMaker = (page, _) => ShouldCrawlPage(page, urlsToSkip);
         crawler.PageCrawlCompleted += (sender, args) => ExtractReferences(args.CrawledPage, references.Writer);
@@ -54,7 +54,7 @@ public class DesiringGodMessagesCrawler : IVerseCrawler
         await crawlTask.ConfigureAwait(false);
     }
 
-    private void ExtractReferences(CrawledPage crawledPage, ChannelWriter<ArticleVerseReference> referenceWriter)
+    private void ExtractReferences(CrawledPage crawledPage, ChannelWriter<ArticleReference> referenceWriter)
     {
         if (!IsMessage(crawledPage.Uri))
         {
@@ -68,39 +68,16 @@ public class DesiringGodMessagesCrawler : IVerseCrawler
 
         foreach (var reference in mainElement.InnerHtml.GetPassages())
         {
-            // Write chapter references
-            if (!reference.Verse.HasValue)
-            {
-                var articleVerseReference = new ArticleVerseReference(
-                    Name,
-                    crawledPage.Uri.AbsoluteUri,
-                    reference.Book,
-                    reference.Chapter,
-                    null);
+            var articleVerseReference = new ArticleReference(
+                Name,
+                crawledPage.Uri.AbsoluteUri,
+                new (reference.Book, reference.Chapter, reference.Verse, reference.EndVerse));
 
-                WriteArticleReference(referenceWriter, articleVerseReference);
-            }
-            else
-            {
-                var startVerse = reference.Verse.Value;
-                var endVerse = reference.EndVerse ?? startVerse;
-
-                for (var v = startVerse; v <= endVerse; v++)
-                {
-                    var articleVerseReference = new ArticleVerseReference(
-                        Name,
-                        crawledPage.Uri.AbsoluteUri,
-                        reference.Book,
-                        reference.Chapter,
-                        v);
-
-                    WriteArticleReference(referenceWriter, articleVerseReference);
-                }
-            }
+            WriteArticleReference(referenceWriter, articleVerseReference);
         }
     }
 
-    private static void WriteArticleReference(ChannelWriter<ArticleVerseReference> referenceWriter, ArticleVerseReference articleVerseReference)
+    private static void WriteArticleReference(ChannelWriter<ArticleReference> referenceWriter, ArticleReference articleVerseReference)
     {
         if (!referenceWriter.TryWrite(articleVerseReference))
         {
@@ -118,5 +95,4 @@ public class DesiringGodMessagesCrawler : IVerseCrawler
     private bool IsMessage(Uri uri) =>
         !IsMessageList(uri)
         && MessageRegex.IsMatch(uri.AbsoluteUri);
-
 }
