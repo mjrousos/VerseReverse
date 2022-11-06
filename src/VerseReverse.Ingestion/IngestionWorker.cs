@@ -2,6 +2,7 @@
 using VerseReverse.Crawlers;
 using VerseReverse.Data;
 using VerseReverse.Ingestion.Models;
+using VerseReverse.Models;
 
 namespace VerseReverse.Ingestion;
 
@@ -37,18 +38,23 @@ public class IngestionWorker : BackgroundService
 
     private async Task IngestVerses(IVerseCrawler crawler)
     {
-        _logger.LogInformation("Ingesting verses with crawler {CrawlerName}", crawler.Name);
+        _logger.LogInformation("Ingesting verses with crawler {CrawlerName}", crawler.ProviderName);
 
         // TODO : Get already-ingested URLs
         var urlsToSkip = Enumerable.Empty<string>();
 
         // TODO : Get verses and write to the database (in batches?)
+        var articleReferences = new Dictionary<string, List<Reference>>();
         await foreach (var reference in crawler.GetReferences(urlsToSkip, new CancellationTokenSource()))
         {
+            // TODO: Batch these up
+            await _dataRepository.AddArticleReferencesAsync(new Article(reference.Provider, reference.Url), new[] { reference.Reference }).ConfigureAwait(false);
+
             Console.WriteLine($"[{reference.Provider}] {reference.Url}: {reference.Reference}");
         }
 
-        _logger.LogInformation("Ingestion finished with crawler {CrawlerName}", crawler.Name);
+
+        _logger.LogInformation("Ingestion finished with crawler {CrawlerName}", crawler.ProviderName);
     }
 
     private async Task WaitForTriggerTimeAsync(CancellationToken stoppingToken)

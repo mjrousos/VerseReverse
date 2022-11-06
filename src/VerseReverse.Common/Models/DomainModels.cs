@@ -1,5 +1,7 @@
 ﻿namespace VerseReverse.Models;
 
+public record Article(string Provider, string Url);
+
 public record ArticleReference(string Provider, string Url, Reference Reference);
 
 public record Reference(Books Book, int Chapter, int? Verse, int? EndVerse)

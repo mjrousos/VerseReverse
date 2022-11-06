@@ -22,6 +22,10 @@ namespace TodoAPI.Migrations
                 .WithColumn("ArticleId").AsInt32().NotNullable()
                 .WithColumn("ReferenceId").AsInt32().NotNullable();
 
+            Create.PrimaryKey()
+                .OnTable("ArticleXReference")
+                .Columns("ArticleId", "ReferenceId");
+
             Create.ForeignKey()
                 .FromTable("ArticleXReference").ForeignColumn("ArticleId")
                 .ToTable("Articles").PrimaryColumn("Id");

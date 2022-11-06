@@ -14,7 +14,7 @@ public class DesiringGodMessagesCrawler : IVerseCrawler
     private static readonly Regex MessageListRegex = new(@"^https:\/\/www\.desiringgod\.org\/messages\/all(\?page=\d+)?$", RegexOptions.Compiled | RegexOptions.Singleline);
     private static readonly Regex MessageRegex = new(@"^https:\/\/www\.desiringgod\.org\/messages\/[a-zA-Z0-9\-]+$", RegexOptions.Compiled | RegexOptions.Singleline);
 
-    public string Name => "DesiringGodMessages";
+    public string ProviderName => "DesiringGodMessages";
 
     public DesiringGodMessagesCrawler()
     {
@@ -69,7 +69,7 @@ public class DesiringGodMessagesCrawler : IVerseCrawler
         foreach (var reference in mainElement.InnerHtml.GetPassages())
         {
             var articleVerseReference = new ArticleReference(
-                Name,
+                ProviderName,
                 crawledPage.Uri.AbsoluteUri,
                 new (reference.Book, reference.Chapter, reference.Verse, reference.EndVerse));
 
