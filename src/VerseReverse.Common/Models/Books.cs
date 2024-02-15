@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VerseReverse.Models;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1602:Enumeration items should be documented", Justification = "<Pending>")]
+[System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1602:Enumeration items should be documented", Justification = "Enum names are self-explanatory")]
 public enum Books
 {
     Genesis,

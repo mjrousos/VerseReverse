@@ -271,3 +271,14 @@ csharp_style_prefer_switch_expression = true:suggestion
 csharp_style_prefer_not_pattern = true:suggestion
 csharp_style_prefer_extended_property_pattern = true:suggestion
 dotnet_diagnostic.SA1101.severity = silent
+csharp_style_prefer_primary_constructors = true:suggestion
+dotnet_diagnostic.SA1600.severity = silent
+dotnet_diagnostic.SA1633.severity = none
+dotnet_diagnostic.SA1512.severity = none
+
+# CS1591: Missing XML comment for publicly visible type or member
+dotnet_diagnostic.CS1591.severity = silent
+
+# IDE1006: Naming Styles
+dotnet_diagnostic.IDE1006.severity = silent
+dotnet_diagnostic.SA1201.severity = warning

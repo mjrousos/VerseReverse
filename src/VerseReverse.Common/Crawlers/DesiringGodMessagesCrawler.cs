@@ -40,7 +40,8 @@ public class DesiringGodMessagesCrawler : IVerseCrawler
                 {
                     references.Writer.Complete();
                     return Task.CompletedTask;
-                }, TaskScheduler.Default);
+                },
+                TaskScheduler.Default);
 
         var referenceReader = references.Reader;
         while (await referenceReader.WaitToReadAsync(cts.Token).ConfigureAwait(false))
@@ -71,7 +72,7 @@ public class DesiringGodMessagesCrawler : IVerseCrawler
             var articleVerseReference = new ArticleReference(
                 ProviderName,
                 crawledPage.Uri.AbsoluteUri,
-                new (reference.Book, reference.Chapter, reference.Verse, reference.EndVerse));
+                new(reference.Book, reference.Chapter, reference.Verse, reference.EndVerse));
 
             WriteArticleReference(referenceWriter, articleVerseReference);
         }

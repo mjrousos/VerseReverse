@@ -2,18 +2,17 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>VerseReverse</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetSpider" Version="5.1.0" />
+    <PackageReference Include="DotNetSpider" Version="5.1.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\VerseReverse.Common\VerseReverse.Common.csproj" />
   </ItemGroup>
-
 </Project>

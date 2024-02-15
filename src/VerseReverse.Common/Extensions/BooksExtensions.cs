@@ -16,11 +16,12 @@ public static class BooksExtensions
         Books? book = normalizedName switch
         {
             "GEN" => Books.Genesis,
+
             // TODO: Add additional abbreviations
 
             "PSALM" => Books.Psalms,
             "SONGOFSONGS" => Books.SongOfSolomon,
-            _ => null
+            _ => null,
         };
 
         if (book is null && Enum.TryParse<Books>(normalizedName, true, out var parsedBook))
@@ -52,6 +53,6 @@ public static class BooksExtensions
                 Books.FirstJohn => "1 John",
                 Books.SecondJohn => "2 John",
                 Books.ThirdJohn => "3 John",
-                _ => book.ToString()
+                _ => book.ToString(),
             };
 }

@@ -1,5 +1,5 @@
-﻿using FluentMigrator.Runner;
-using System.Reflection;
+﻿using System.Reflection;
+using FluentMigrator.Runner;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace VerseReverse.Data;

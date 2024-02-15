@@ -1,12 +1,12 @@
 ﻿using System.Data;
+using Dapper;
 using FluentMigrator.Runner;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ReferenceDto = VerseReverse.Data.Models.Reference;
 using VerseReverse.Models;
-using Dapper;
+using ReferenceDto = VerseReverse.Data.Models.Reference;
 
 namespace VerseReverse.Data;
 
